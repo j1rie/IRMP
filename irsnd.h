@@ -116,8 +116,8 @@
 #  define IRSND_SUPPORT_RECS80EXT_PROTOCOL      0
 #endif
 
-#if IRSND_SUPPORT_LEGO_PROTOCOL == 1 && F_INTERRUPTS < 20000
-#  warning F_INTERRUPTS too low, LEGO protocol disabled (should be at least 20000)
+#if IRSND_SUPPORT_LEGO_PROTOCOL == 1 && F_INTERRUPTS < 19000
+#  warning F_INTERRUPTS too low, LEGO protocol disabled (should be at least 19000)
 #  undef IRSND_SUPPORT_LEGO_PROTOCOL
 #  define IRSND_SUPPORT_LEGO_PROTOCOL           0
 #endif

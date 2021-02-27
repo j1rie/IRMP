@@ -154,6 +154,23 @@ void irmp_idle(void);                   // the user has to provide an implementa
 #  define IRMP_SUPPORT_MITSU_HEAVY_PROTOCOL      0
 #endif
 
+
+#if IRMP_SUPPORT_KASEIKYO_PROTOCOL == 1 && IRMP_SUPPORT_MITSU_HEAVY_PROTOCOL == 1
+#  warning KASEIKYO protocol conflicts wih MITSU_HEAVY, please enable only one of both protocols
+#  warning MITSU_HEAVY protocol disabled
+#  undef IRMP_SUPPORT_MITSU_HEAVY_PROTOCOL
+#  define IRMP_SUPPORT_MITSU_HEAVY_PROTOCOL      0
+#endif
+
+
+#if IRMP_SUPPORT_PANASONIC_PROTOCOL == 1 && IRMP_SUPPORT_KASEIKYO_PROTOCOL == 1
+#  warning PANASONIC protocol conflicts wih KASEIKYO, please enable only one of both protocols
+#  warning PANASONIC protocol disabled
+#  undef IRMP_SUPPORT_PANASONIC_PROTOCOL
+#  define IRMP_SUPPORT_PANASONIC_PROTOCOL      0
+#endif
+
+
 #if IRMP_SUPPORT_RC5_PROTOCOL == 1 && IRMP_SUPPORT_ORTEK_PROTOCOL == 1
 #  warning RC5 protocol conflicts wih ORTEK, please enable only one of both protocols
 #  warning ORTEK protocol disabled
@@ -227,8 +244,8 @@ void irmp_idle(void);                   // the user has to provide an implementa
 #  define IRMP_SUPPORT_RECS80EXT_PROTOCOL       0
 #endif
 
-#if IRMP_SUPPORT_LEGO_PROTOCOL == 1 && F_INTERRUPTS < 20000
-#  warning F_INTERRUPTS too low, LEGO protocol disabled (should be at least 20000)
+#if IRMP_SUPPORT_LEGO_PROTOCOL == 1 && F_INTERRUPTS < 19000
+#  warning F_INTERRUPTS too low, LEGO protocol disabled (should be at least 19000)
 #  undef IRMP_SUPPORT_LEGO_PROTOCOL
 #  define IRMP_SUPPORT_LEGO_PROTOCOL            0
 #endif
@@ -269,8 +286,8 @@ void irmp_idle(void);                   // the user has to provide an implementa
 #  define IRMP_SUPPORT_NEC_PROTOCOL             1
 #endif
 
-#if IRMP_SUPPORT_RCMM_PROTOCOL == 1 && F_INTERRUPTS < 20000
-#  warning F_INTERRUPTS too low, RCMM protocol disabled (should be at least 20000)
+#if IRMP_SUPPORT_RCMM_PROTOCOL == 1 && F_INTERRUPTS < 19000
+#  warning F_INTERRUPTS too low, RCMM protocol disabled (should be at least 19000)
 #  undef IRMP_SUPPORT_RCMM_PROTOCOL
 #  define IRMP_SUPPORT_RCMM_PROTOCOL            0
 #endif
@@ -288,7 +305,7 @@ void irmp_idle(void);                   // the user has to provide an implementa
 #endif
 
 #if F_INTERRUPTS > 20000
-#error F_INTERRUPTS too high (should be not greater than 20000)
+# warning F_INTERRUPTS too high (should be not greater than 20000)
 #endif
 
 #include "irmpprotocols.h"
