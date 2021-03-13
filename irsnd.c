@@ -579,10 +579,11 @@ irsnd_on (void)
 
 #  elif defined (ARM_STM32)                             // STM32
         IRSND_TIMER->EGR = TIM_PSCReloadMode_Immediate; // Generate an update event to reload the Prescaler and the Repetition counter values immediately
-        TIM_CCxCmd(IRSND_TIMER, IRSND_TIMER_CHANNEL, TIM_CCx_Enable);      // enable OC-output (is being disabled in TIM_SelectOCxM())
+        TIM_CCxCmd(IRSND_TIMER, IRSND_TIMER_CHANNEL, TIM_CCx_Enable);      // enable OC-output
         TIM_Cmd(IRSND_TIMER, ENABLE);                   // enable counter
 
 #  elif defined (ARM_STM32_HAL)                         // STM32 with Hal Library
+        IRSND_TIMER->EGR = TIM_PSCReloadMode_Immediate; // Generate an update event to reload the Prescaler and the Repetition counter values immediately
         HAL_TIM_PWM_Start(&IRSND_TIMER_HANDLER, IRSND_TIMER_CHANNEL_NUMBER);
 
 #  elif defined (TEENSY_ARM_CORTEX_M4)                  // TEENSY
@@ -656,8 +657,8 @@ irsnd_off (void)
         // IRSND_PIN = 1; //input mode -> disbale PWM output pin (0=PWM on, 1=PWM off)
 
 #  elif defined (ARM_STM32)                                                             // STM32
-        TIM_CCxCmd(IRSND_TIMER, IRSND_TIMER_CHANNEL, TIM_CCx_Disable);                   // disable OC-output
-        TIM_Cmd(IRSND_TIMER, DISABLE);
+        TIM_CCxCmd(IRSND_TIMER, IRSND_TIMER_CHANNEL, TIM_CCx_Disable);                  // disable OC-output
+        TIM_Cmd(IRSND_TIMER, DISABLE);                                                  // disable counter
 
 #  elif defined (ARM_STM32_HAL)                                                         // STM32
         HAL_TIM_PWM_Stop(&IRSND_TIMER_HANDLER, IRSND_TIMER_CHANNEL_NUMBER);
