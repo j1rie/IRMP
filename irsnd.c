@@ -583,7 +583,7 @@ irsnd_on (void)
         TIM_Cmd(IRSND_TIMER, ENABLE);                   // enable counter
 
 #  elif defined (ARM_STM32_HAL)                         // STM32 with Hal Library
-        IRSND_TIMER->EGR = TIM_PSCReloadMode_Immediate; // Generate an update event to reload the Prescaler and the Repetition counter values immediately
+        IRSND_TIMER->EGR = TIM_EGR_UG; // Generate an update event to reload the Prescaler and the Repetition counter values immediately
         HAL_TIM_PWM_Start(&IRSND_TIMER_HANDLER, IRSND_TIMER_CHANNEL_NUMBER);
 
 #  elif defined (TEENSY_ARM_CORTEX_M4)                  // TEENSY
