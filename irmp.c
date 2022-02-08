@@ -2518,6 +2518,21 @@ irmp_init (void)
 #  endif
     GPIO_Init(IRMP_PORT, &GPIO_InitStructure);
 
+#elif defined (ARM_STM32_OPENCM3)                                       // ARM_STM32_OPENCM3
+
+    /* GPIOx clock enable */
+#  if defined (STM32L1) || defined (STM32F1) || defined (STM32F3) || defined (STM32F4)
+    rcc_periph_clock_enable(IRMP_PORT_RCC);
+#  endif
+
+    /* GPIO Configuration */
+#  if defined (STM32L1) || defined (STM32F4) || defined (STM32F3)
+    gpio_mode_setup(IRMP_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, IRMP_BIT);
+    gpio_set_output_options(IRMP_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_2MHZ, IRMP_BIT);
+#  elif defined (STM32F1)
+    gpio_set_mode(IRMP_PORT, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT, IRMP_BIT);
+#  endif
+
 #elif defined(STELLARIS_ARM_CORTEX_M4)
     // Enable the GPIO port
     ROM_SysCtlPeripheralEnable(IRMP_PORT_PERIPH);
