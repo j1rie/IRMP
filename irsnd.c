@@ -185,6 +185,8 @@
     //Nothing here to do here -> See irsndconfig.h
 #elif defined (ARM_STM32_HAL)                                           // STM32 with Hal Library
     //Nothing here to do here -> See irsndconfig.h
+#elif defined (ARM_RP2040)                                              // ARM_RP2040
+    uint slice_num;
 #elif defined (__xtensa__)                                              // ESP8266
     //Nothing here to do here -> See irsndconfig.h
 
@@ -524,6 +526,15 @@
 #  define IRSND_FREQ_40_KHZ                     (IRSND_FREQ_TYPE) (40000)
 #  define IRSND_FREQ_56_KHZ                     (IRSND_FREQ_TYPE) (56000)
 #  define IRSND_FREQ_455_KHZ                    (IRSND_FREQ_TYPE) (455000)
+#elif defined (ARM_RP2040)                      // ARM_RP2040
+#  define IRSND_FREQ_TYPE                       uint32_t
+#  define IRSND_FREQ_30_KHZ                     (IRSND_FREQ_TYPE) (30000)
+#  define IRSND_FREQ_32_KHZ                     (IRSND_FREQ_TYPE) (32000)
+#  define IRSND_FREQ_36_KHZ                     (IRSND_FREQ_TYPE) (36000)
+#  define IRSND_FREQ_38_KHZ                     (IRSND_FREQ_TYPE) (38000)
+#  define IRSND_FREQ_40_KHZ                     (IRSND_FREQ_TYPE) (40000)
+#  define IRSND_FREQ_56_KHZ                     (IRSND_FREQ_TYPE) (56000)
+#  define IRSND_FREQ_455_KHZ                    (IRSND_FREQ_TYPE) (455000)
 #elif defined (TEENSY_ARM_CORTEX_M4)            // TEENSY
 #  define IRSND_FREQ_TYPE                       float
 #  define IRSND_FREQ_30_KHZ                     (IRSND_FREQ_TYPE) (30000)
@@ -601,6 +612,10 @@ irsnd_on (void)
 #  elif defined (ARM_STM32_HAL)                         // STM32 with Hal Library
         IRSND_TIMER->EGR = TIM_EGR_UG;                  // Generate an update event to reload the Prescaler and the Repetition counter values immediately
         HAL_TIM_PWM_Start(&IRSND_TIMER_HANDLER, IRSND_TIMER_CHANNEL_NUMBER);
+
+#  elif defined (ARM_RP2040)                            // ARM_RP2040
+        pwm_set_counter(slice_num, 0);                  // reset counter
+        pwm_set_enabled(slice_num, true);               // enable counter
 
 #  elif defined (TEENSY_ARM_CORTEX_M4)                  // TEENSY
         analogWrite(IRSND_PIN, 33 * 255 / 100);         // pwm 33%
@@ -682,6 +697,9 @@ irsnd_off (void)
 
 #  elif defined (ARM_STM32_HAL)                                                         // STM32
         HAL_TIM_PWM_Stop(&IRSND_TIMER_HANDLER, IRSND_TIMER_CHANNEL_NUMBER);
+
+#  elif defined (ARM_RP2040)                                                            // ARM_RP2040
+        pwm_set_enabled(slice_num, false);                                              // disable counter
 
 #  elif defined (TEENSY_ARM_CORTEX_M4)                                                  // TEENSY
         analogWrite(IRSND_PIN, 0);                                                      // pwm off, LOW level
@@ -805,7 +823,7 @@ irsnd_set_freq (IRSND_FREQ_TYPE freq)
         /* Set frequency */
         TIM_SetAutoreload(IRSND_TIMER, freq - 1);
         /* Set duty cycle */
-        TIM_SetCompare1(IRSND_TIMER, (freq + 1) / 2);
+        TIM_SetCompare1(IRSND_TIMER, freq / 2);
 
 #  elif defined (ARM_STM32_OPENCM3)                                                         // ARM_STM32_OPENCM3
         static uint32_t      TimeBaseFreq = 0;
@@ -838,7 +856,7 @@ irsnd_set_freq (IRSND_FREQ_TYPE freq)
         /* Set frequency */
         timer_set_period(IRSND_TIMER, freq - 1);
         /* Set duty cycle */
-        timer_set_oc_value(IRSND_TIMER, TIM_OC1, (freq + 1) / 2);
+        timer_set_oc_value(IRSND_TIMER, TIM_OC1, freq / 2);
 
 #  elif defined (ARM_STM32_HAL)                                                            // STM32 with Hal Library
 
@@ -876,6 +894,21 @@ irsnd_set_freq (IRSND_FREQ_TYPE freq)
         {
             _Error_Handler(__FILE__, __LINE__);
         }
+
+#  elif defined (ARM_RP2040)                                                               // ARM_RP2040
+        static uint32_t      TimeBaseFreq = 0;
+
+        if (TimeBaseFreq == 0)
+        {
+               TimeBaseFreq = F_CPU;
+        }
+
+        freq = TimeBaseFreq/freq;
+
+        /* Set frequency */
+        pwm_set_wrap(slice_num, freq - 1);
+        /* Set duty cycle */
+        pwm_set_gpio_level(IRSND_BIT, freq / 2);
 
 #  elif defined (TEENSY_ARM_CORTEX_M4)
         analogWriteResolution(8);                                                           // 8 bit
@@ -1042,6 +1075,14 @@ irsnd_init (void)
 
 #  elif defined (ARM_STM32_HAL)
         irsnd_set_freq (IRSND_FREQ_36_KHZ);                                         // default frequency
+
+#  elif defined (ARM_RP2040)                                                        // ARM_RP2040
+        /* GPIO Configuration */
+        gpio_set_function(IRSND_BIT, GPIO_FUNC_PWM);
+        slice_num = pwm_gpio_to_slice_num(IRSND_BIT);
+        pwm_set_output_polarity(slice_num, true, true);
+
+        irsnd_set_freq (IRSND_FREQ_36_KHZ);                                         // set default frequency
 
 #  elif defined (TEENSY_ARM_CORTEX_M4)
         if (!digitalPinHasPWM(IRSND_PIN))

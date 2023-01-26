@@ -103,6 +103,11 @@
 #  define IRMP_PIN                              IRMP_GPIO_STRUCT->IDR
 #  define input(x)                              ((x) & (1 << IRMP_BIT))
 
+#elif defined (ARM_RP2040)
+#  define IRMP_BIT                              IRMP_BIT_NUMBER
+#  define IRMP_PIN                              IRMP_BIT_NUMBER // for use with input(x) below
+#  define input(x)                              (gpio_get(x))
+
 #elif defined (TEENSY_ARM_CORTEX_M4)
 #  define input(x)                              ((uint8_t)(digitalReadFast(x)))
 

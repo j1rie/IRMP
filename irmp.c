@@ -2549,6 +2549,11 @@ irmp_init (void)
     IRMP_GPIO_STRUCT->DDR &= ~(1<<IRMP_BIT);                            // pin is input
     IRMP_GPIO_STRUCT->CR1 |= (1<<IRMP_BIT);                             // activate pullup
 
+#elif defined (ARM_RP2040)                                              // ARM_RP2040
+    /* GPIO Configuration */
+    gpio_init(IRMP_BIT);
+    gpio_disable_pulls(IRMP_BIT);
+
 #elif defined (TEENSY_ARM_CORTEX_M4)                                    // TEENSY
     pinMode(IRMP_PIN, INPUT);
 
