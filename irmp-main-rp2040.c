@@ -40,7 +40,7 @@ main (void)
     IRMP_DATA irmp_data;
 
     irmp_init();                                                            // initialize irmp
-    timer_init();                                                          // initialize timer2
+    timer_init();                                                           // initialize timer
 
     for (;;)
     {
