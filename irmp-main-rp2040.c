@@ -1,6 +1,8 @@
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * irmp-main-rp2040.c - demo main module to test IRMP decoder on RP2040
  *
+ * Copyright (c) 2023 Joerg Riechardt
+ *
  * Copyright (c) 2009-2022 Frank Meyer - frank(at)fli4l.de
  *
  * This demo module is runnable on RP2040
