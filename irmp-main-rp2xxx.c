@@ -1,11 +1,11 @@
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
- * irmp-main-rp2040.c - demo main module to test IRMP decoder on RP2040
+ * irmp-main-rp2xxx.c - demo main module to test IRMP decoder on RP2xxx
  *
  * Copyright (c) 2023 Joerg Riechardt
  *
  * Copyright (c) 2009-2022 Frank Meyer - frank(at)fli4l.de
  *
- * This demo module is runnable on RP2040
+ * This demo module is runnable on RP2xxx
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
