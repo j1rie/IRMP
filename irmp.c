@@ -55,7 +55,7 @@
 #  define IRMP_SUPPORT_SERIAL                       0
 #endif
 
-#define IRMP_KEY_REPETITION_LEN                 (uint_fast16_t)(F_INTERRUPTS * 150.0e-3 + 0.5)           // autodetect key repetition within 151 msec
+#define IRMP_KEY_REPETITION_LEN                 (uint_fast16_t)(F_INTERRUPTS * 150.0e-3 + 0.5)           // autodetect key repetition within 150 msec
 
 #define MIN_TOLERANCE_00                        1.0                           // -0%
 #define MAX_TOLERANCE_00                        1.0                           // +0%
@@ -2467,7 +2467,7 @@ static volatile uint_fast8_t                    irmp_flags;
 #if IRMP_AUTODETECT_REPEATRATE
 volatile uint_fast16_t                          delta_detection = 0;    // interval between two detections in ticks
 volatile uint_fast8_t                           delta = 0;              // interval between two detections in ms
-volatile uint_fast8_t                           min_delta = 247;        // detected repeat rate 
+volatile uint_fast8_t                           min_delta = 254 * 100 / (100 + JITTER_COMPENSATION);  // detected repeat rate 
 static volatile uint_fast8_t                    previous_irmp_protocol = 0;
 volatile uint_fast8_t                           same_key = 0;
 volatile uint_fast8_t                           keep_same_key = 0;         // (for debug)
@@ -2846,7 +2846,7 @@ irmp_get_data (IRMP_DATA * irmp_data_p)
 
 #if IRMP_AUTODETECT_REPEATRATE
                     if (irmp_protocol != previous_irmp_protocol){
-                        min_delta = 247; // reset, 247 * 103 / 100 + 1 = 255, TODO: adapt this, too
+                        min_delta = 254 * 100 / (100 + JITTER_COMPENSATION); // reset
                     }
                     previous_irmp_protocol = irmp_protocol;
                     uint_fast16_t tmp_delta = (delta_detection * (1000000 / F_INTERRUPTS)) / 1000; // ms
@@ -2859,7 +2859,7 @@ irmp_get_data (IRMP_DATA * irmp_data_p)
                         if (delta < min_delta)
                             min_delta = delta;
                     }
-                    timeout = delta >= min_delta * 103 / 100 + 1; // TODO: is this enough? if not, adapt above, too
+                    timeout = (delta >= min_delta * (100 + JITTER_COMPENSATION) / 100 + 1) /*|| (delta <=  min_delta * (100 - JITTER_COMPENSATION) / 100 - 1)*/; // TODO: does the second part make sense? use average delta?
                     if (same_key && !timeout)
                         irmp_flags |= IRMP_FLAG_REPETITION;
                     keep_same_key = same_key;
