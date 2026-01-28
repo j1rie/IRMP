@@ -27,6 +27,8 @@
  * Change F_INTERRUPTS if you change the number of interrupts per second,
  * Normally, F_INTERRUPTS should be in the range from 10000 to 15000, typical is 15000
  * A value above 15000 costs additional program space, absolute maximum value is 20000.
+ * A value of 20000 is needed for Support of LEGO and RCMM, but it prevents using PENTAX or GREE
+ *  since for 20000 they have 8 bit overflow issues because of the long start bits.
  * On PIC with XC8/C18 Compiler, use 15151 as the correct value.
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
@@ -294,6 +296,14 @@
  */
 #ifndef IRMP_USE_IDLE_CALL
 #  define IRMP_USE_IDLE_CALL                    0                       // 1: use idle calls. 0: do not. default is 0
+#endif
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * Use Callback if complete data was received
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#if !defined(IRMP_USE_COMPLETE_CALLBACK)
+#  define IRMP_USE_COMPLETE_CALLBACK           0                        // 1: use callback. 0: do not. default is 0
 #endif
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------

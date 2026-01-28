@@ -128,6 +128,10 @@
 void irmp_idle(void);                   // the user has to provide an implementation of the irmp_idle() function and link it
 #endif
 
+#if IRMP_USE_COMPLETE_CALLBACK == 1
+void irmp_register_complete_callback_function(void (*aCompleteCallbackFunction)(void));
+#endif
+
 #if IRMP_SUPPORT_TECHNICS_PROTOCOL == 1
 #  undef IRMP_SUPPORT_MATSUSHITA_PROTOCOL
 #  define IRMP_SUPPORT_MATSUSHITA_PROTOCOL      1
@@ -173,13 +177,6 @@ void irmp_idle(void);                   // the user has to provide an implementa
 #  warning MITSU_HEAVY protocol disabled
 #  undef IRMP_SUPPORT_MITSU_HEAVY_PROTOCOL
 #  define IRMP_SUPPORT_MITSU_HEAVY_PROTOCOL      0
-#endif
-
-#if IRMP_SUPPORT_PANASONIC_PROTOCOL == 1 && IRMP_SUPPORT_KASEIKYO_PROTOCOL == 1
-#  warning PANASONIC protocol conflicts wih KASEIKYO, please enable only one of both protocols
-#  warning PANASONIC protocol disabled
-#  undef IRMP_SUPPORT_PANASONIC_PROTOCOL
-#  define IRMP_SUPPORT_PANASONIC_PROTOCOL      0
 #endif
 
 #if IRMP_SUPPORT_RC5_PROTOCOL == 1 && IRMP_SUPPORT_ORTEK_PROTOCOL == 1
@@ -303,14 +300,14 @@ void irmp_idle(void);                   // the user has to provide an implementa
 #  define IRMP_SUPPORT_RCMM_PROTOCOL            0
 #endif
 
-#if IRMP_SUPPORT_PENTAX_PROTOCOL == 1 && F_INTERRUPTS > 16000
-#  warning F_INTERRUPTS too high, PENTAX protocol disabled (should be max 16000)
+#if IRMP_SUPPORT_PENTAX_PROTOCOL == 1 && F_INTERRUPTS > 17000 && __SIZEOF_INT__ < 4
+#  warning F_INTERRUPTS too high, PENTAX protocol disabled (should be max 17000)
 #  undef IRMP_SUPPORT_PENTAX_PROTOCOL
 #  define IRMP_SUPPORT_PENTAX_PROTOCOL          0
 #endif
 
-#if IRMP_SUPPORT_GREE_PROTOCOL == 1 && F_INTERRUPTS > 16000
-#  warning F_INTERRUPTS too high, GREE protocol disabled (should be max 16000)
+#if IRMP_SUPPORT_GREE_PROTOCOL == 1 && F_INTERRUPTS > 17000 && __SIZEOF_INT__ < 4
+#  warning F_INTERRUPTS too high, GREE protocol disabled (should be max 17000)
 #  undef IRMP_SUPPORT_GREE_PROTOCOL
 #  define IRMP_SUPPORT_GREE_PROTOCOL            0
 #endif
