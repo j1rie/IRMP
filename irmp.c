@@ -2476,12 +2476,12 @@ volatile uint_fast16_t                          delta_detection = 0;    // inter
 volatile uint32_t                               pass_on_delta_detection = 0xFFFF;    // interval between two detections in ticks
 volatile uint_fast16_t                          tmp_delta = 0xFFFF;
 volatile uint_fast8_t                           delta = 0;              // interval between two detections in ms
-volatile uint_fast8_t                           min_delta = 254 * 100 / (100 + JITTER_COMPENSATION);  // detected repeat rate 
+volatile uint_fast8_t                           min_delta = 170;  // detected repeat rate, preset to greatest known repeat rate
 static volatile uint_fast8_t                    previous_irmp_protocol = 0;
 volatile uint_fast8_t                           same_key = 0;
 volatile uint_fast8_t                           keep_same_key = 0;
 volatile uint_fast8_t                           timeout = 1;
-volatile uint_fast8_t                           upper_border = 255;
+volatile uint_fast8_t                           upper_border = 176;
 #endif
 
 #if defined(__MBED__)
@@ -2674,14 +2674,13 @@ irmp_get_data (IRMP_DATA * irmp_data_p)
                     irmp_protocol = IRMP_APPLE_PROTOCOL;
                     irmp_address = (irmp_command & 0xFF00) >> 8; // address was received in command!
                     irmp_command &= 0x00FF;
-                    rtc = TRUE;
                 }
                 else
                 {
                     ANALYZE_PRINTF1 ("Switching to ONKYO protocol\n");
                     irmp_protocol = IRMP_ONKYO_PROTOCOL;
-                    rtc = TRUE;
                 }
+                rtc = TRUE;
                 break;
 #endif
 
@@ -2880,8 +2879,8 @@ irmp_get_data (IRMP_DATA * irmp_data_p)
             else
                 delta = tmp_delta; 
             if (irmp_protocol != previous_irmp_protocol) { // reset
-                min_delta = 254 * 100 / (100 + JITTER_COMPENSATION);
-                upper_border = 255;
+                min_delta = 170;
+                upper_border = min_delta * (100 + JITTER_COMPENSATION) / 100 + 1;
                 timeout = 1;
                 keep_same_key = 0;
                 previous_irmp_protocol = irmp_protocol;
@@ -3268,6 +3267,7 @@ irmp_ISR (void)
     static uint_fast16_t irmp_pulse_time;                                            // count bit time for pulse
 #else
     static uint_fast8_t     irmp_pulse_time;                                        // count bit time for pulse
+#endif
     static PAUSE_LEN        irmp_pause_time;                                        // count bit time for pause
     static uint_fast16_t    last_irmp_address = 0xFFFF;                             // save last irmp address to recognize key repetition
 #if IRMP_ENABLE_RELEASE_DETECTION == 1
@@ -3325,6 +3325,16 @@ irmp_ISR (void)
 #if IRMP_AUTODETECT_REPEATRATE
     if (delta_detection < 0xFFFF)
         delta_detection++;
+#if IRMP_ENABLE_RELEASE_DETECTION == 1
+    if (! key_released && delta_detection * (1000000 / F_INTERRUPTS) / 1000 >= upper_border)
+        {
+            irmp_address        = last_irmp_address;
+            irmp_command        = last_irmp_command;
+            irmp_flags          = IRMP_FLAG_RELEASE;
+            irmp_ir_detected    = TRUE;
+            key_released        = TRUE;
+        }
+#endif
 #endif
 
     if (! irmp_ir_detected)                                                     // ir code already detected?
@@ -3383,14 +3393,16 @@ irmp_ISR (void)
                         key_repetition_len++;
 
 #if IRMP_ENABLE_RELEASE_DETECTION == 1
+#ifndef IRMP_AUTODETECT_REPEATRATE
                         if (! key_released && key_repetition_len > IRMP_KEY_RELEASE_LEN)
                         {
                             irmp_address        = last_irmp_address;
                             irmp_command        = last_irmp_command;
-                            irmp_flags          = 0x02;
+                            irmp_flags          = IRMP_FLAG_RELEASE;
                             irmp_ir_detected    = TRUE;
                             key_released        = TRUE;
                         }
+#endif
 #endif
 
 #if IRMP_SUPPORT_DENON_PROTOCOL == 1
