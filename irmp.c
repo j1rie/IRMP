@@ -2661,6 +2661,7 @@ irmp_get_data (IRMP_DATA * irmp_data_p)
 
 #if IRMP_SUPPORT_NEC_PROTOCOL == 1
             case IRMP_NEC_PROTOCOL:
+            case IRMP_APPLE_PROTOCOL:
                 if ((irmp_command >> 8) == (~irmp_command & 0x00FF))
                 {
                     if ((irmp_address >> 8) == (~irmp_address & 0x00FF))
