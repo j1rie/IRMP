@@ -1243,8 +1243,13 @@ irsnd_send_data (IRMP_DATA * irmp_data_p, uint8_t do_wait)
         return (FALSE);
     }
 
-    irsnd_protocol  = irmp_data_p->protocol;
+    irsnd_protocol  = irmp_data_p->protocol & ~0x80; // hack for testing
     irsnd_repeat    = irmp_data_p->flags & IRSND_REPETITION_MASK;
+
+        if (irmp_data_p->protocol & 0x80) // hack for testing
+        {
+            irsnd_repeat = 20000;
+        }
 
     switch (irsnd_protocol)
     {
